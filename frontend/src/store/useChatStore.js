@@ -37,17 +37,17 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  sendMessage: async (messageData) => {
-    const { selectedUser, messages } = get();
-    if (!selectedUser) return;
+  // sendMessage: async (messageData) => {
+  //   const { selectedUser, messages } = get();
+  //   if (!selectedUser) return;
 
-    try {
-      const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-      set({ messages: [...messages, res.data] });
-    } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to send message.");
-    }
-  },
+  //   try {
+  //     const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
+  //     set({ messages: [...messages, res.data] });
+  //   } catch (error) {
+  //     toast.error(error?.response?.data?.message || "Failed to send message.");
+  //   }
+  // },
 
   deleteMessage: async (messageId) => {
     const { messages } = get();
@@ -113,4 +113,36 @@ export const useChatStore = create((set, get) => ({
     }
   },
   setSelectedUser: (selectedUser) => set({ selectedUser }),
+
+  sendMessage: async (messageData) => {
+  const { selectedUser, messages } = get();
+  if (!selectedUser) return;
+
+  const isGeminiBot = selectedUser._id === "6865237404bbbb6c967517f4"; 
+
+  try {
+    
+    const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
+    const newMessages = [...messages, res.data];
+    set({ messages: newMessages });
+
+    // If Gemini, also get AI response
+    if (isGeminiBot) {
+      const geminiRes = await axiosInstance.post("/gemini",  messageData );
+
+      const botMessage = {
+        senderId: selectedUser._id,
+        text: geminiRes.data.reply,
+        createdAt: new Date().toISOString(),
+        _id: `gemini-${Date.now()}`, // temporary local ID, adjust based on your backend
+      };
+
+      set({ messages: [...get().messages, botMessage] });
+    }
+  } catch (error) {
+    toast.error(error?.response?.data?.message || "Failed to send message.");
+  }
+}
+
 }));
+

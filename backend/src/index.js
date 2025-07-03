@@ -7,6 +7,7 @@ import path from 'path'
 import {connectDB} from "./lib/db.js"
 import authRoutes from "./routes/auth.route.js"
 import messageRoutes from "./routes/message.route.js"
+import geminiRoutes from "./routes/gemini.route.js";
 
 import {app, server} from "./lib/socket.js";
 
@@ -27,7 +28,7 @@ app.use(cors({
 
 
 
-
+app.use("/api/gemini", geminiRoutes);
 app.use('/api/auth',authRoutes);
 app.use('/api/messages', messageRoutes);
 

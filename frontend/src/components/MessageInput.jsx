@@ -7,7 +7,9 @@ const MessageInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
-  const { sendMessage } = useChatStore();
+  const { sendMessage,selectedUser } = useChatStore();
+
+  const [isSubmitting, setSubmitting] = useState(false);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -31,7 +33,9 @@ const MessageInput = () => {
     if (!text.trim() && !imagePreview) return;
 
     try {
+      setSubmitting(true);
       await sendMessage({ text: text.trim(), image: imagePreview });
+      setSubmitting(false);
       setText("");
       setImagePreview(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -83,21 +87,24 @@ const MessageInput = () => {
             onChange={handleImageChange}
           />
 
-          <button
-            type="button"
-            className={`btn btn-circle btn-sm sm:btn-md hidden sm:flex 
-            ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Image size={20} />
-          </button>
+          {selectedUser._id !== "6865237404bbbb6c967517f4" && (
+              <button
+                type="button"
+                className={`btn btn-circle btn-sm sm:btn-md hidden sm:flex 
+                ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                  <Image size={20} />
+              </button>
+            )
+          } 
         </div>
 
         {/* Smaller icon for phones */}
         <button
           type="submit"
           className="btn btn-sm btn-circle sm:btn-md"
-          disabled={!text.trim() && !imagePreview}
+          disabled={!text.trim() && !imagePreview && isSubmitting}
         >
           <Send size={20} />
         </button>

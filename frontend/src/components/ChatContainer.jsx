@@ -123,7 +123,7 @@ const ChatContainer = () => {
             </div>
 
             <div className="chat-bubble flex flex-col max-w-[80%] sm:max-w-[60%]">
-            {message.image && (
+            { message.image && (
               <img
                 src={message.image}
                 alt="Attachment"
